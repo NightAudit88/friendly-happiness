@@ -92,6 +92,11 @@ label small { font-weight: 400; color: var(--muted) }
 .empty { color: var(--muted); padding: 18px; border: 1px dashed var(--line); border-radius: 10px }
 .banner { background: var(--amber-soft); color: var(--ink); border-radius: 8px; padding: 10px 14px; font-size: 13px }
 details summary { cursor: pointer; font-weight: 600 }
+.prompt-pick { display: grid; gap: 8px }
+.prompt-opt { display: grid; gap: 4px; text-align: left; font: 14px/1.45 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer }
+.prompt-opt small { color: var(--muted); font: 12px var(--f-mono) }
+.prompt-opt:hover { border-color: var(--accent) }
+.prompt-opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft) }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
 </style>
 
@@ -174,12 +179,13 @@ details summary { cursor: pointer; font-weight: 600 }
     <div class="panel">
       <div>
         <h2>Draft an essay</h2>
-        <p class="note">Paste the exact prompt from the application. Claude writes a first draft using only your profile and marks gaps as [brackets] for you to fill in. Rewrite it in your own voice before you submit: many sponsors check for AI-written essays.</p>
+        <p class="note">Pick a prompt from the list or paste one from the application. Claude writes a first draft using only your profile and marks gaps as [brackets] for you to fill in. Rewrite it in your own voice before you submit: many sponsors check for AI-written essays.</p>
       </div>
       <div class="grid2">
         <label>Scholarship<select id="dScholarship"></select></label>
         <label>Word limit<input id="dWords" type="number" min="50" max="2000" value="500"></label>
       </div>
+      <div id="dPromptPick" class="prompt-pick"></div>
       <label>Essay prompt<textarea id="dPrompt" placeholder="e.g. Describe your career goals and how this scholarship will help you achieve them."></textarea></label>
       <div class="actions">
         <button class="btn" id="dGo">Write draft</button>
@@ -225,19 +231,42 @@ const CATALOG = [
   { id: "asu-general", name: "ASU General Scholarship Application", sponsor: "ASU Scholarship Universe", amount: "Varies (hundreds of donor awards)",
     date: "2027-01-25", conf: "estimate", tags: ["asu"], url: "https://scholarships.asu.edu",
     blurb: "One application matches you to many donor-funded ASU scholarships. Several colleges advise finishing it by late January; most ASU deadlines fall between January 1 and March 1.",
-    dateNote: "Last cycle's advice was Jan 25. Confirm in Scholarship Universe" },
+    dateNote: "Last cycle's advice was Jan 25. Confirm in Scholarship Universe",
+    promptSource: "https://tuition.asu.edu/portal-app-questions", promptSourceName: "ASU portal application questions",
+    prompts: [
+      { q: "Explain how receiving a scholarship will assist you in achieving your education and career goals.", words: 500, exact: true },
+      { q: "Inclusion is critical to ASU's mission. Describe your experiences with and awareness of issues of diversity.", exact: true },
+      { q: "Briefly share why you chose to attend ASU and what being a Sun Devil means to you.", exact: true },
+      { q: "How do you embody the mission of the President's Club as a scholarship applicant?", exact: true },
+    ] },
   { id: "newcollege", name: "New College department scholarships", sponsor: "New College of Interdisciplinary Arts & Sciences", amount: "Varies",
     date: "2027-02-15", conf: "estimate", tags: ["asu", "field"], url: "https://newcollege.asu.edu",
     blurb: "Your degree is housed in New College (School of Mathematical and Natural Sciences). Ask your academic advisor which awards are open to PTX majors. Most are listed inside Scholarship Universe.",
-    dateNote: "Typical ASU window Feb–Mar. Ask your advisor" },
+    dateNote: "Typical ASU window Feb–Mar. Ask your advisor",
+    reqs: "Most are matched through the ASU General Scholarship Application, so its essays count here too." },
   { id: "goldwater", name: "Barry Goldwater Scholarship", sponsor: "Goldwater Foundation", amount: "Up to $7,500/yr",
     date: "2027-01-29", conf: "confirmed", tags: ["research", "field"], url: "https://goldwaterscholarship.gov",
     blurb: "For sophomores and juniors planning a research career in the natural sciences. Health-science students qualify if they aim for research rather than clinical practice. ASU must nominate you, so its campus deadline comes earlier than the national one.",
-    dateNote: "National deadline. ASU's internal deadline is earlier: contact ASU's national scholarships office now" },
+    dateNote: "National deadline. ASU's internal deadline is earlier: contact ASU's national scholarships office now",
+    reqs: "ASU nomination, three letters of recommendation, transcripts, and a research essay of up to 3 pages including references.",
+    promptSource: "https://goldwaterscholarship.gov/students/application-questions/", promptSourceName: "Goldwater application questions",
+    prompts: [
+      { q: "Brief career goals statement: in one or two sentences, state your career goal.", words: 50 },
+      { q: "Expanded career goals: describe your career goals and how your education and research experience prepare you to reach them.", words: 600 },
+      { q: "Motivation: what motivates you to pursue a research career?", words: 300 },
+      { q: "Future academic plans: describe your planned graduate study and how it supports your research career.", words: 350 },
+      { q: "Optional personal background: share anything about your background or experiences that the reviewers should know.", words: 200 },
+      { q: "Research essay: describe one research project you worked on, including the question, your methods, your results and your own contribution.", words: 1300 },
+    ] },
   { id: "aspet-surf", name: "ASPET Summer Undergraduate Research Fellowship (SURF)", sponsor: "American Society for Pharmacology & Experimental Therapeutics", amount: "Paid summer research stipend",
     date: "2027-02-01", conf: "estimate", tags: ["field", "research"], url: "https://www.aspet.org/awards/SURF/individual/",
     blurb: "Funds a summer of pharmacology research in a lab. You must be a full-time undergraduate who won't graduate before the fellowship ends.",
-    dateNote: "Summer 2026 deadline was Feb 2. Expect early Feb 2027" },
+    dateNote: "Summer 2026 deadline was Feb 2. Expect early Feb 2027",
+    reqs: "Host programs differ. A typical one (University at Buffalo) asks for a CV, unofficial transcripts and two recommenders, preferably research advisors or professors.",
+    promptSource: "https://medicine.buffalo.edu/departments/pharmtox/education/undergraduate/research/SURF/application.html", promptSourceName: "Example host program (University at Buffalo)",
+    prompts: [
+      { q: "Personal statement: describe your educational path, your interest in pharmacology research, and any barriers you have faced.", words: 500 },
+    ] },
   { id: "sot-ura", name: "SOT Undergraduate Research Award", sponsor: "Society of Toxicology", amount: "Travel support to the SOT Annual Meeting",
     date: "2027-10-01", conf: "estimate", tags: ["field", "research"], url: "https://sotapply.toxicology.org/prog/sot_undergraduate_research_award",
     blurb: "For undergraduates presenting original toxicology research at the SOT Annual Meeting. Meant to encourage graduate study in toxicology.",
@@ -245,7 +274,12 @@ const CATALOG = [
   { id: "sot-udp", name: "SOT Undergraduate Diversity Program", sponsor: "Society of Toxicology", amount: "Paid travel to the SOT Annual Meeting",
     date: "2027-10-15", conf: "estimate", tags: ["field"], url: "https://www.toxicology.org/groups/ug/programs-for-students.asp",
     blurb: "Brings undergraduates from underrepresented groups to the SOT meeting for mentoring and career sessions. Past participants can later apply for the Perry J. Gehring travel award.",
-    dateNote: "Historically mid-October" },
+    dateNote: "Historically mid-October",
+    reqs: "The travel award is reviewed on grades, transcript and a written statement from your advisor. Preference goes to 2nd- and 3rd-year, first-generation and Pell Grant students. Past participants can apply for the Perry J. Gehring award, which asks for a 250-word personal statement.",
+    promptSource: "https://sotapply.toxicology.org/prog/perry_j_gehring_diversity_student_travel_award/", promptSourceName: "SOT Apply: Perry J. Gehring award",
+    prompts: [
+      { q: "Personal statement (Perry J. Gehring award, for past program participants): describe your interest in toxicology, your research, and how attending the SOT Annual Meeting will advance your goals.", words: 250 },
+    ] },
   { id: "afpe", name: "AFPE Gateway to Research Scholarship", sponsor: "American Foundation for Pharmaceutical Education", amount: "About $5,000",
     date: "", conf: "estimate", tags: ["field", "research"], url: "https://www.afpe.org",
     blurb: "A research-focused award for pharmacy and pharmaceutical-science undergraduates. Check the eligibility list carefully: some cycles require enrollment in a pharmacy program.",
@@ -341,6 +375,8 @@ function renderList() {
         <div class="meta"><span>${esc(s.sponsor || "Added by you")}</span>${s.amount ? `<span>${esc(s.amount)}</span>` : ""}${tags ? `<span>${tags}</span>` : ""}</div>
         <p>${esc(s.blurb || s.notes || "")}</p>
         ${s.dateNote ? `<p class="note">${esc(s.dateNote)}${past ? " · last date has passed, watch for the next cycle" : ""}</p>` : ""}
+        ${s.reqs ? `<p class="note"><b>Also needed:</b> ${esc(s.reqs)}</p>` : ""}
+        ${s.prompts?.length ? `<p class="note"><b>${s.prompts.length} essay prompt${s.prompts.length > 1 ? "s" : ""} on file.</b> Choose Draft essay to pick one.</p>` : ""}
         <div class="actions">
           ${s.url ? `<a class="btn ghost small" href="${esc(s.url)}" target="_blank" rel="noopener">Open official page</a>` : ""}
           <button class="btn ghost small" data-draft="${esc(s.id)}">Draft essay</button>
@@ -364,7 +400,7 @@ $("#list").addEventListener("change", e => {
 });
 $("#list").addEventListener("click", e => {
   const d = e.target.dataset.draft, r = e.target.dataset.remove;
-  if (d) { $("#dScholarship").value = d; showView("drafts"); $("#dPrompt").focus(); }
+  if (d) { $("#dScholarship").value = d; renderPromptPick(); showView("drafts"); $("#dPrompt").focus(); }
   if (r) { state.custom = state.custom.filter(c => c.id !== r); save("custom", state.custom); render(); }
 });
 document.querySelectorAll("[data-filter]").forEach(b => b.addEventListener("click", () => {
@@ -400,7 +436,23 @@ function renderDraftSelect() {
   const sel = $("#dScholarship"), cur = sel.value;
   sel.innerHTML = all().map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
   if (cur) sel.value = cur;
+  renderPromptPick();
 }
+function renderPromptPick() {
+  const s = all().find(x => x.id === $("#dScholarship").value) || {};
+  const el = $("#dPromptPick");
+  if (!s.prompts?.length) { el.innerHTML = `<p class="note">No published prompts for this one yet. Paste the prompt from the application below.</p>`; return; }
+  el.innerHTML = `<p class="note"><b>Prompts from the application.</b> Choose one to use it.</p>` +
+    s.prompts.map((p, i) => `<button type="button" class="prompt-opt" data-pi="${i}"><span>${esc(p.q)}</span><small>${p.words ? `${p.words} words` : "Limit not listed"} · ${p.exact ? "Exact wording" : "Summarized: check the exact wording in the application"}</small></button>`).join("") +
+    (s.promptSource ? `<p class="note">Source: <a href="${esc(s.promptSource)}" target="_blank" rel="noopener">${esc(s.promptSourceName)}</a></p>` : "");
+}
+$("#dScholarship").addEventListener("change", renderPromptPick);
+$("#dPromptPick").addEventListener("click", e => {
+  const b = e.target.closest("[data-pi]"); if (!b) return;
+  const s = all().find(x => x.id === $("#dScholarship").value); const p = s?.prompts?.[+b.dataset.pi]; if (!p) return;
+  $("#dPrompt").value = p.q; $("#dWords").value = p.words || 500;
+  document.querySelectorAll(".prompt-opt").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
 function renderDrafts() {
   const el = $("#draftList");
   if (!state.drafts.length) { el.innerHTML = `<div class="empty">No saved drafts yet. Write one above and choose Save draft.</div>`; return; }
