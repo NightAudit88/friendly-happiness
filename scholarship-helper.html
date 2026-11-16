@@ -1,0 +1,474 @@
+<title>PharmTox Scholarship Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab-notebook desk — summary strip of what's due, then tabbed workbench (catalog / profile / drafts). */
+:root {
+  --bg: #f5f7f6; --surface: #ffffff; --ink: #14201d; --muted: #5b6b66; --line: #d9e1de;
+  --accent: #0f6b5c; --accent-ink: #ffffff; --accent-soft: #e1f0ec;
+  --amber: #a85d00; --amber-soft: #fbefdc; --red: #b3261e; --red-soft: #fbe5e3; --green: #2a7a2e; --green-soft: #e3f3e3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1513; --surface: #16201d; --ink: #e4ece9; --muted: #93a39e; --line: #2a3632;
+  --accent: #5cc4ae; --accent-ink: #06201a; --accent-soft: #173a33;
+  --amber: #f0b45c; --amber-soft: #3a2a12; --red: #f2908a; --red-soft: #3d1a18; --green: #8fd694; --green-soft: #183319; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1513; --surface: #16201d; --ink: #e4ece9; --muted: #93a39e; --line: #2a3632;
+  --accent: #5cc4ae; --accent-ink: #06201a; --accent-soft: #173a33;
+  --amber: #f0b45c; --amber-soft: #3a2a12; --red: #f2908a; --red-soft: #3d1a18; --green: #8fd694; --green-soft: #183319; color-scheme: dark }
+*, *::before, *::after { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body) }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15 }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; letter-spacing: -0.01em }
+h2 { font-size: 1.25rem; font-weight: 700 }
+h3 { font-size: 1.05rem; font-weight: 700 }
+a { color: var(--accent) }
+.eyebrow { font: 500 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.lede { color: var(--muted); max-width: 65ch; margin: 8px 0 0 }
+header { display: grid; gap: 6px }
+.formula { font-family: var(--f-mono); color: var(--accent); font-size: 13px }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 22px }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0 }
+.stat b { display: block; font: 700 1.6rem/1.1 var(--f-display); font-variant-numeric: tabular-nums }
+.stat span { color: var(--muted); font-size: 13px }
+.next { grid-column: span 2 }
+@media (max-width: 520px) { .next { grid-column: auto } }
+.next b { font-size: 1.05rem; line-height: 1.3 }
+
+nav.tabs { display: flex; gap: 4px; margin: 28px 0 16px; border-bottom: 1px solid var(--line); overflow-x: auto }
+nav.tabs button { font: 600 14px var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 10px 14px; cursor: pointer; white-space: nowrap }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent) }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px }
+.chip-btn { font: 500 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer }
+.chip-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.toolbar input[type=search] { flex: 1 1 200px; min-width: 0 }
+
+.list { display: grid; gap: 10px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px;
+  grid-template-columns: 1fr auto; min-width: 0 }
+.card > * { min-width: 0 }
+.card .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 13px }
+.card p { margin: 0; max-width: 70ch }
+.card .side { display: grid; gap: 8px; justify-items: end; align-content: start }
+@media (max-width: 640px) { .card { grid-template-columns: 1fr } .card .side { justify-items: start; grid-auto-flow: column; justify-content: start; align-items: center } }
+.date { font: 500 13px var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap }
+.pill { font: 500 11px/1 var(--f-mono); letter-spacing: .04em; text-transform: uppercase; border-radius: 999px; padding: 4px 8px; white-space: nowrap }
+.p-confirmed { background: var(--green-soft); color: var(--green) }
+.p-estimate { background: var(--amber-soft); color: var(--amber) }
+.p-soon { background: var(--red-soft); color: var(--red) }
+.p-tag { background: var(--accent-soft); color: var(--accent) }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+
+.btn { font: 600 14px var(--f-body); border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink) }
+.btn.ghost { background: transparent; color: var(--accent) }
+.btn.small { padding: 5px 10px; font-size: 13px }
+.btn:disabled { opacity: .55; cursor: default }
+input, select, textarea { font: 14px var(--f-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100% }
+select.status { width: auto }
+textarea { resize: vertical; min-height: 90px; line-height: 1.5 }
+label { display: grid; gap: 4px; font-weight: 600; font-size: 13px; min-width: 0 }
+label small { font-weight: 400; color: var(--muted) }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px }
+.note { font-size: 13px; color: var(--muted); max-width: 70ch; margin: 0 }
+.copyable { display: flex; gap: 8px; align-items: flex-start }
+.copyable textarea { flex: 1 }
+.draft-out { white-space: pre-wrap; font-family: var(--f-body); background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; padding: 14px; min-height: 120px; max-width: 75ch }
+.saved { font: 12px var(--f-mono); color: var(--muted) }
+.sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 8px }
+.sources a { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; text-decoration: none; color: var(--ink) }
+.sources a span { display: block; color: var(--muted); font-size: 13px }
+.sources a:hover { border-color: var(--accent) }
+.empty { color: var(--muted); padding: 18px; border: 1px dashed var(--line); border-radius: 10px }
+.banner { background: var(--amber-soft); color: var(--ink); border-radius: 8px; padding: 10px 14px; font-size: 13px }
+details summary { cursor: pointer; font-weight: 600 }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ASU · BS Pharmacology &amp; Toxicology</div>
+    <h1>Scholarship Desk</h1>
+    <p class="lede">Scholarships matched to your program, your deadlines in one place, and essay drafts written from your own profile. You review and submit each application yourself.</p>
+  </header>
+
+  <section class="summary" aria-label="Summary">
+    <div class="stat next"><span>Next deadline</span><b id="sumNext">–</b><span id="sumNextDate"></span></div>
+    <div class="stat"><b id="sumActive">0</b><span>in progress</span></div>
+    <div class="stat"><b id="sumDone">0</b><span>submitted</span></div>
+  </section>
+
+  <div id="storeBanner" class="banner" hidden style="margin-top:14px"></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-find" aria-selected="true" data-view="find">Scholarships</button>
+    <button role="tab" id="tab-profile" aria-selected="false" data-view="profile">My profile</button>
+    <button role="tab" id="tab-drafts" aria-selected="false" data-view="drafts">Essay drafts</button>
+    <button role="tab" id="tab-more" aria-selected="false" data-view="more">Find more</button>
+  </nav>
+
+  <!-- SCHOLARSHIPS -->
+  <section id="view-find">
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search by name, sponsor or keyword" aria-label="Search scholarships">
+      <button class="chip-btn" data-filter="all" aria-pressed="true">All</button>
+      <button class="chip-btn" data-filter="asu" aria-pressed="false">ASU</button>
+      <button class="chip-btn" data-filter="field" aria-pressed="false">Pharm/Tox</button>
+      <button class="chip-btn" data-filter="research" aria-pressed="false">Research</button>
+      <button class="chip-btn" data-filter="mine" aria-pressed="false">My tracked</button>
+    </div>
+    <div class="list" id="list"></div>
+
+    <details class="panel" style="margin-top:16px" id="addPanel">
+      <summary>Add a scholarship you found</summary>
+      <div class="grid2">
+        <label>Name<input id="addName" placeholder="e.g. Department research award"></label>
+        <label>Sponsor<input id="addSponsor" placeholder="e.g. New College"></label>
+        <label>Amount<input id="addAmount" placeholder="e.g. $1,500"></label>
+        <label>Deadline<input id="addDate" type="date"></label>
+        <label>Link<input id="addUrl" type="url" placeholder="https://"></label>
+      </div>
+      <label>Eligibility or notes<textarea id="addNotes" placeholder="Who it's for, required documents, essay prompt"></textarea></label>
+      <div><button class="btn" id="addBtn">Add to my list</button></div>
+    </details>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="view-profile" hidden>
+    <div class="panel">
+      <div>
+        <h2>Your profile</h2>
+        <p class="note">Fill this in once. Essay drafts use only what you write here, and you can copy any field straight into an application form.</p>
+      </div>
+      <div class="grid2">
+        <label>Full name<input id="p_name" data-p="name"></label>
+        <label>Class year<select id="p_year" data-p="year"><option value="">Choose</option><option>Freshman</option><option>Sophomore</option><option>Junior</option><option>Senior</option><option>Incoming student</option></select></label>
+        <label>Expected graduation<input id="p_grad" data-p="grad" placeholder="e.g. May 2028"></label>
+        <label>Cumulative GPA<input id="p_gpa" data-p="gpa" placeholder="e.g. 3.7"></label>
+        <label>Campus or online<input id="p_campus" data-p="campus" placeholder="e.g. West Valley, ASU Online"></label>
+        <label>Arizona resident?<select id="p_res" data-p="resident"><option value="">Choose</option><option>Yes</option><option>No</option></select></label>
+      </div>
+      <label>Career goal <small>What you want to do after graduation and why</small><textarea id="p_goal" data-p="goal" placeholder="e.g. Become a regulatory toxicologist assessing environmental chemical exposure"></textarea></label>
+      <label>Research and lab experience<textarea id="p_research" data-p="research" placeholder="Labs, techniques, projects, posters, mentors"></textarea></label>
+      <label>Work, volunteering and leadership<textarea id="p_activities" data-p="activities" placeholder="Jobs, clubs, volunteer roles, hours per week"></textarea></label>
+      <label>Awards and honors<textarea id="p_awards" data-p="awards"></textarea></label>
+      <label>Your story <small>Background, challenges, what drew you to pharmacology and toxicology</small><textarea id="p_story" data-p="story" style="min-height:140px"></textarea></label>
+      <label>Financial need <small>Optional, only if you're comfortable sharing</small><textarea id="p_need" data-p="need"></textarea></label>
+      <label>Recommenders <small>Names and roles, so you know whom to ask</small><textarea id="p_recs" data-p="recs" placeholder="e.g. Dr. ___ (PTX 432 instructor); lab supervisor"></textarea></label>
+      <div class="actions"><button class="btn" id="saveProfile">Save profile</button><span class="saved" id="profileSaved"></span></div>
+    </div>
+  </section>
+
+  <!-- DRAFTS -->
+  <section id="view-drafts" hidden>
+    <div class="panel">
+      <div>
+        <h2>Draft an essay</h2>
+        <p class="note">Paste the exact prompt from the application. Claude writes a first draft using only your profile and marks gaps as [brackets] for you to fill in. Rewrite it in your own voice before you submit: many sponsors check for AI-written essays.</p>
+      </div>
+      <div class="grid2">
+        <label>Scholarship<select id="dScholarship"></select></label>
+        <label>Word limit<input id="dWords" type="number" min="50" max="2000" value="500"></label>
+      </div>
+      <label>Essay prompt<textarea id="dPrompt" placeholder="e.g. Describe your career goals and how this scholarship will help you achieve them."></textarea></label>
+      <div class="actions">
+        <button class="btn" id="dGo">Write draft</button>
+        <button class="btn ghost" id="dStop" hidden>Stop</button>
+        <span class="saved" id="dStatus"></span>
+      </div>
+      <div class="draft-out" id="dOut" aria-live="polite">Your draft will appear here.</div>
+      <div class="actions">
+        <button class="btn ghost small" id="dCopy" disabled>Copy draft</button>
+        <button class="btn ghost small" id="dSave" disabled>Save draft</button>
+      </div>
+    </div>
+    <h2 style="margin:26px 0 10px">Saved drafts</h2>
+    <div class="list" id="draftList"></div>
+  </section>
+
+  <!-- MORE -->
+  <section id="view-more" hidden>
+    <div class="panel">
+      <h2>Where to look for more</h2>
+      <p class="note">These search sites need your own login, so check them about once a month. Add anything you find with "Add a scholarship you found" on the Scholarships tab.</p>
+      <div class="sources">
+        <a href="https://scholarships.asu.edu" target="_blank" rel="noopener"><b>ASU Scholarship Universe</b><span>ASU's matching portal. Fill in the general application once and it matches you to donor scholarships.</span></a>
+        <a href="https://tuition.asu.edu/financial-aid/scholarships" target="_blank" rel="noopener"><b>ASU Financial Aid: Scholarships</b><span>University-wide awards and deadline calendar.</span></a>
+        <a href="https://newcollege.asu.edu" target="_blank" rel="noopener"><b>New College of Interdisciplinary Arts &amp; Sciences</b><span>The college that runs your degree. Ask your advisor about department awards.</span></a>
+        <a href="https://www.toxicology.org/groups/ug/programs-for-students.asp" target="_blank" rel="noopener"><b>Society of Toxicology: student programs</b><span>Undergraduate awards, travel grants and the diversity program.</span></a>
+        <a href="https://www.aspet.org/awards/SURF/individual/" target="_blank" rel="noopener"><b>ASPET awards</b><span>Pharmacology research fellowships and student awards.</span></a>
+        <a href="https://studentaid.gov" target="_blank" rel="noopener"><b>FAFSA (studentaid.gov)</b><span>Needed for Pell Grants and many need-based scholarships.</span></a>
+        <a href="https://www.fastweb.com" target="_blank" rel="noopener"><b>Fastweb</b><span>Large national scholarship search.</span></a>
+        <a href="https://bold.org" target="_blank" rel="noopener"><b>Bold.org</b><span>National scholarships, many with short essays.</span></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// ---- Catalog: public scholarships relevant to ASU PTX undergrads. Dates checked Nov 2026. ----
+const CATALOG = [
+  { id: "fafsa", name: "FAFSA (federal & state aid)", sponsor: "U.S. Department of Education", amount: "Pell Grant up to ~$7,400/yr + unlocks need-based awards",
+    date: "2027-01-25", conf: "estimate", tags: ["asu"], url: "https://studentaid.gov",
+    blurb: "Not a scholarship, but many ASU and private scholarships require it. The 2027–28 form is open now. File before the ASU general scholarship deadline.",
+    dateNote: "File early; target date set to match ASU's general application" },
+  { id: "asu-general", name: "ASU General Scholarship Application", sponsor: "ASU Scholarship Universe", amount: "Varies (hundreds of donor awards)",
+    date: "2027-01-25", conf: "estimate", tags: ["asu"], url: "https://scholarships.asu.edu",
+    blurb: "One application matches you to many donor-funded ASU scholarships. Several colleges advise finishing it by late January; most ASU deadlines fall between January 1 and March 1.",
+    dateNote: "Last cycle's advice was Jan 25. Confirm in Scholarship Universe" },
+  { id: "newcollege", name: "New College department scholarships", sponsor: "New College of Interdisciplinary Arts & Sciences", amount: "Varies",
+    date: "2027-02-15", conf: "estimate", tags: ["asu", "field"], url: "https://newcollege.asu.edu",
+    blurb: "Your degree is housed in New College (School of Mathematical and Natural Sciences). Ask your academic advisor which awards are open to PTX majors. Most are listed inside Scholarship Universe.",
+    dateNote: "Typical ASU window Feb–Mar. Ask your advisor" },
+  { id: "goldwater", name: "Barry Goldwater Scholarship", sponsor: "Goldwater Foundation", amount: "Up to $7,500/yr",
+    date: "2027-01-29", conf: "confirmed", tags: ["research", "field"], url: "https://goldwaterscholarship.gov",
+    blurb: "For sophomores and juniors planning a research career in the natural sciences. Health-science students qualify if they aim for research rather than clinical practice. ASU must nominate you, so its campus deadline comes earlier than the national one.",
+    dateNote: "National deadline. ASU's internal deadline is earlier: contact ASU's national scholarships office now" },
+  { id: "aspet-surf", name: "ASPET Summer Undergraduate Research Fellowship (SURF)", sponsor: "American Society for Pharmacology & Experimental Therapeutics", amount: "Paid summer research stipend",
+    date: "2027-02-01", conf: "estimate", tags: ["field", "research"], url: "https://www.aspet.org/awards/SURF/individual/",
+    blurb: "Funds a summer of pharmacology research in a lab. You must be a full-time undergraduate who won't graduate before the fellowship ends.",
+    dateNote: "Summer 2026 deadline was Feb 2. Expect early Feb 2027" },
+  { id: "sot-ura", name: "SOT Undergraduate Research Award", sponsor: "Society of Toxicology", amount: "Travel support to the SOT Annual Meeting",
+    date: "2027-10-01", conf: "estimate", tags: ["field", "research"], url: "https://sotapply.toxicology.org/prog/sot_undergraduate_research_award",
+    blurb: "For undergraduates presenting original toxicology research at the SOT Annual Meeting. Meant to encourage graduate study in toxicology.",
+    dateNote: "Last listed close was around Oct 1" },
+  { id: "sot-udp", name: "SOT Undergraduate Diversity Program", sponsor: "Society of Toxicology", amount: "Paid travel to the SOT Annual Meeting",
+    date: "2027-10-15", conf: "estimate", tags: ["field"], url: "https://www.toxicology.org/groups/ug/programs-for-students.asp",
+    blurb: "Brings undergraduates from underrepresented groups to the SOT meeting for mentoring and career sessions. Past participants can later apply for the Perry J. Gehring travel award.",
+    dateNote: "Historically mid-October" },
+  { id: "afpe", name: "AFPE Gateway to Research Scholarship", sponsor: "American Foundation for Pharmaceutical Education", amount: "About $5,000",
+    date: "", conf: "estimate", tags: ["field", "research"], url: "https://www.afpe.org",
+    blurb: "A research-focused award for pharmacy and pharmaceutical-science undergraduates. Check the eligibility list carefully: some cycles require enrollment in a pharmacy program.",
+    dateNote: "Dates not confirmed. Check AFPE's site" },
+];
+
+const STATUSES = ["Not started", "Interested", "Gathering materials", "Writing", "Submitted", "Awarded", "Not awarded", "Skipping"];
+const ACTIVE = new Set(["Interested", "Gathering materials", "Writing"]);
+const DONE = new Set(["Submitted", "Awarded", "Not awarded"]);
+
+const state = { profile: {}, tracker: {}, custom: [], drafts: [] };
+let filter = "all", query = "";
+let db = null, uid = null, useLocal = false;
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const daysUntil = (iso) => iso ? Math.round((new Date(iso + "T00:00:00") - today()) / 864e5) : null;
+const fmtDate = (iso) => iso ? new Date(iso + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Date TBA";
+
+function all() { return [...CATALOG, ...state.custom.map(c => ({ ...c, tags: ["mine-added"], conf: c.date ? "confirmed" : "estimate", custom: true }))]; }
+
+// ---------- storage ----------
+function localGet(k) { try { return JSON.parse(localStorage.getItem("ptx:" + k) || "null"); } catch { return null; } }
+function localSet(k, v) { try { localStorage.setItem("ptx:" + k, JSON.stringify(v)); } catch {} }
+const pending = {};
+async function save(key, value) {
+  if (useLocal || !db) { localSet(key, value); return; }
+  // one write at a time per doc
+  pending[key] = (pending[key] || Promise.resolve()).then(() => db.doc(`data/users/${uid}/${key}`).set({ v: value }))
+    .catch(e => { if (e && e.code === "unavailable") return new Promise(r => setTimeout(r, 800 + Math.random() * 600)).then(() => db.doc(`data/users/${uid}/${key}`).set({ v: value })); showBanner("Couldn't save to your account. Changes are kept in this browser only."); localSet(key, value); });
+  return pending[key];
+}
+async function loadAll() {
+  for (const k of ["profile", "tracker", "custom", "drafts"]) {
+    const v = localGet(k); if (v) state[k] = v;
+  }
+  render();
+  const timer = setTimeout(() => { if (!db) fallBack(); }, 10000);
+  try {
+    db = await claude.use("db");
+    const user = await claude.use("user");
+    if (!db || !user) { clearTimeout(timer); fallBack(); return; }
+    uid = await user.id();
+    if (!uid) { clearTimeout(timer); fallBack(); return; }
+    const snaps = await Promise.all(["profile", "tracker", "custom", "drafts"].map(k => db.doc(`data/users/${uid}/${k}`).get()));
+    clearTimeout(timer);
+    ["profile", "tracker", "custom", "drafts"].forEach((k, i) => {
+      const s = snaps[i];
+      if (s.exists && s.data().v != null) state[k] = structuredClone(s.data().v);
+      else if (localGet(k)) save(k, state[k]); // migrate browser copy into account
+    });
+    render(); fillProfile();
+  } catch (e) { clearTimeout(timer); fallBack(); }
+}
+function fallBack() { useLocal = true; db = null; showBanner("Saving in this browser only. Sign in to claude.ai to keep your tracker and profile with your account."); }
+function showBanner(t) { const b = $("#storeBanner"); b.textContent = t; b.hidden = false; }
+
+// ---------- render ----------
+function render() { renderList(); renderSummary(); renderDraftSelect(); renderDrafts(); }
+
+function renderSummary() {
+  const items = all();
+  const upcoming = items.filter(s => s.date && daysUntil(s.date) >= 0 && !DONE.has(state.tracker[s.id]?.status) && state.tracker[s.id]?.status !== "Skipping")
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const n = upcoming[0];
+  $("#sumNext").textContent = n ? n.name : "Nothing upcoming";
+  $("#sumNextDate").textContent = n ? `${fmtDate(n.date)} · ${daysUntil(n.date)} days${n.conf === "estimate" ? " (estimated)" : ""}` : "";
+  $("#sumActive").textContent = items.filter(s => ACTIVE.has(state.tracker[s.id]?.status)).length;
+  $("#sumDone").textContent = items.filter(s => DONE.has(state.tracker[s.id]?.status)).length;
+}
+
+function renderList() {
+  const q = query.toLowerCase();
+  let items = all().filter(s => {
+    if (filter === "mine") { const st = state.tracker[s.id]?.status; if (!(s.custom || (st && st !== "Not started"))) return false; }
+    else if (filter !== "all" && !s.tags.includes(filter)) return false;
+    return !q || [s.name, s.sponsor, s.blurb, s.notes].join(" ").toLowerCase().includes(q);
+  }).sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"));
+  const el = $("#list");
+  if (!items.length) { el.innerHTML = `<div class="empty">${filter === "mine" ? "You aren't tracking anything yet. Set a status on any scholarship to track it here." : "No scholarships match that search."}</div>`; return; }
+  el.innerHTML = items.map(s => {
+    const d = daysUntil(s.date), st = state.tracker[s.id]?.status || "Not started";
+    const soon = d != null && d >= 0 && d <= 30;
+    const past = d != null && d < 0;
+    const pill = !s.date ? `<span class="pill p-estimate">Check date</span>`
+      : soon ? `<span class="pill p-soon">${d} days left</span>`
+      : `<span class="pill ${s.conf === "confirmed" ? "p-confirmed" : "p-estimate"}">${s.conf === "confirmed" ? "Confirmed" : "Estimated"}</span>`;
+    const tags = (s.tags || []).filter(t => t !== "mine-added").map(t => `<span class="pill p-tag">${{ asu: "ASU", field: "Pharm/Tox", research: "Research" }[t]}</span>`).join(" ");
+    return `<article class="card">
+      <div style="display:grid;gap:8px">
+        <h3>${esc(s.name)}</h3>
+        <div class="meta"><span>${esc(s.sponsor || "Added by you")}</span>${s.amount ? `<span>${esc(s.amount)}</span>` : ""}${tags ? `<span>${tags}</span>` : ""}</div>
+        <p>${esc(s.blurb || s.notes || "")}</p>
+        ${s.dateNote ? `<p class="note">${esc(s.dateNote)}${past ? " · last date has passed, watch for the next cycle" : ""}</p>` : ""}
+        <div class="actions">
+          ${s.url ? `<a class="btn ghost small" href="${esc(s.url)}" target="_blank" rel="noopener">Open official page</a>` : ""}
+          <button class="btn ghost small" data-draft="${esc(s.id)}">Draft essay</button>
+          ${s.custom ? `<button class="btn ghost small" data-remove="${esc(s.id)}">Remove</button>` : ""}
+        </div>
+      </div>
+      <div class="side">
+        <span class="date">${fmtDate(s.date)}</span>${pill}
+        <select class="status" id="st-${esc(s.id)}" data-status="${esc(s.id)}" aria-label="Status for ${esc(s.name)}">
+          ${STATUSES.map(x => `<option${x === st ? " selected" : ""}>${x}</option>`).join("")}
+        </select>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+$("#list").addEventListener("change", e => {
+  const id = e.target.dataset.status; if (!id) return;
+  state.tracker = { ...state.tracker, [id]: { ...(state.tracker[id] || {}), status: e.target.value, updated: new Date().toISOString() } };
+  save("tracker", state.tracker); renderSummary(); if (filter === "mine") renderList();
+});
+$("#list").addEventListener("click", e => {
+  const d = e.target.dataset.draft, r = e.target.dataset.remove;
+  if (d) { $("#dScholarship").value = d; showView("drafts"); $("#dPrompt").focus(); }
+  if (r) { state.custom = state.custom.filter(c => c.id !== r); save("custom", state.custom); render(); }
+});
+document.querySelectorAll("[data-filter]").forEach(b => b.addEventListener("click", () => {
+  filter = b.dataset.filter; document.querySelectorAll("[data-filter]").forEach(x => x.setAttribute("aria-pressed", x === b)); renderList();
+}));
+$("#q").addEventListener("input", e => { query = e.target.value; renderList(); });
+
+$("#addBtn").addEventListener("click", () => {
+  const name = $("#addName").value.trim(); if (!name) { $("#addName").focus(); return; }
+  state.custom = [...state.custom, { id: "c" + Date.now().toString(36), name, sponsor: $("#addSponsor").value.trim(), amount: $("#addAmount").value.trim(),
+    date: $("#addDate").value, url: $("#addUrl").value.trim(), notes: $("#addNotes").value.trim() }];
+  ["#addName", "#addSponsor", "#addAmount", "#addDate", "#addUrl", "#addNotes"].forEach(s => $(s).value = "");
+  save("custom", state.custom); render();
+});
+
+// ---------- tabs ----------
+function showView(v) {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
+  ["find", "profile", "drafts", "more"].forEach(x => $("#view-" + x).hidden = x !== v);
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
+
+// ---------- profile ----------
+function fillProfile() { document.querySelectorAll("[data-p]").forEach(el => { el.value = state.profile[el.dataset.p] || ""; }); }
+$("#saveProfile").addEventListener("click", async () => {
+  const p = {}; document.querySelectorAll("[data-p]").forEach(el => p[el.dataset.p] = el.value.trim());
+  state.profile = p; $("#profileSaved").textContent = "Saving…";
+  await save("profile", p); $("#profileSaved").textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+});
+
+// ---------- drafts ----------
+function renderDraftSelect() {
+  const sel = $("#dScholarship"), cur = sel.value;
+  sel.innerHTML = all().map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+  if (cur) sel.value = cur;
+}
+function renderDrafts() {
+  const el = $("#draftList");
+  if (!state.drafts.length) { el.innerHTML = `<div class="empty">No saved drafts yet. Write one above and choose Save draft.</div>`; return; }
+  el.innerHTML = state.drafts.slice().reverse().map(d => `<article class="card" style="grid-template-columns:1fr">
+    <div class="meta"><b style="color:var(--ink)">${esc(d.scholarshipName)}</b><span>${new Date(d.at).toLocaleDateString()}</span><span>${d.text.split(/\s+/).filter(Boolean).length} words</span></div>
+    <p class="note"><b>Prompt:</b> ${esc(d.prompt)}</p>
+    <details><summary>Show draft</summary><div class="draft-out" style="margin-top:8px">${esc(d.text)}</div></details>
+    <div class="actions"><button class="btn ghost small" data-copyd="${esc(d.id)}">Copy</button><button class="btn ghost small" data-deld="${esc(d.id)}">Delete</button></div>
+  </article>`).join("");
+}
+$("#draftList").addEventListener("click", e => {
+  const c = e.target.dataset.copyd, d = e.target.dataset.deld;
+  if (c) copyText(state.drafts.find(x => x.id === c)?.text || "", e.target);
+  if (d) { state.drafts = state.drafts.filter(x => x.id !== d); save("drafts", state.drafts); renderDrafts(); }
+});
+function copyText(t, btn) {
+  const done = () => { const o = btn.textContent; btn.textContent = "Copied"; setTimeout(() => btn.textContent = o, 1400); };
+  navigator.clipboard.writeText(t).then(done).catch(() => { const out = $("#dOut"); const r = document.createRange(); r.selectNodeContents(out); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Press Ctrl/Cmd+C"; });
+}
+
+let sample = null, ctrl = null, lastDraft = "";
+async function getSample() { if (sample === null) sample = await claude.use("sample"); return sample; }
+$("#dGo").addEventListener("click", async () => {
+  const prompt = $("#dPrompt").value.trim(); if (!prompt) { $("#dPrompt").focus(); return; }
+  const p = state.profile; const filled = Object.values(p).filter(Boolean).length;
+  const s = all().find(x => x.id === $("#dScholarship").value) || {};
+  const words = Math.max(50, Math.min(2000, +$("#dWords").value || 500));
+  const sm = await getSample();
+  if (!sm) { $("#dStatus").textContent = "Essay drafting isn't available in this view. Open the page on claude.ai while signed in."; return; }
+  if (filled < 3) $("#dStatus").textContent = "Tip: your profile is mostly empty, so the draft will have many [brackets].";
+  else $("#dStatus").textContent = "";
+  ctrl = new AbortController(); $("#dGo").disabled = true; $("#dStop").hidden = false; $("#dOut").textContent = "Thinking…";
+  const input = `You are helping an undergraduate in Arizona State University's BS in Pharmacology and Toxicology draft a scholarship essay.
+
+SCHOLARSHIP: ${s.name || ""} (${s.sponsor || ""})
+About it: ${s.blurb || s.notes || ""}
+
+ESSAY PROMPT: ${prompt}
+WORD LIMIT: ${words} words (stay at or under it).
+
+STUDENT PROFILE (the only facts you may use):
+${Object.entries({ "Class year": p.year, "Expected graduation": p.grad, GPA: p.gpa, Campus: p.campus, "Arizona resident": p.resident, "Career goal": p.goal, "Research & lab experience": p.research, "Work, volunteering, leadership": p.activities, "Awards": p.awards, "Personal story": p.story, "Financial need": p.need }).map(([k, v]) => `- ${k}: ${v || "(not provided)"}`).join("\n")}
+
+RULES:
+- Never invent experiences, numbers, names, labs or achievements. Where a specific detail would strengthen the essay but isn't in the profile, write a placeholder in square brackets, e.g. [name of lab technique you used].
+- Answer the prompt directly. Use first person, plain and specific language, and connect the student's experience to pharmacology/toxicology and to this scholarship's purpose.
+- Output only the essay text, no title or commentary.`;
+  try {
+    const r = await sm(input, { signal: ctrl.signal, modelTier: "default", cache: false, onText: ({ text }) => { $("#dOut").textContent = text; } });
+    lastDraft = r.text; $("#dOut").textContent = r.text;
+    $("#dStatus").textContent = `${r.text.split(/\s+/).filter(Boolean).length} words${r.truncated ? " · cut off, try a lower word limit" : ""}`;
+    $("#dCopy").disabled = $("#dSave").disabled = false;
+  } catch (e) {
+    const code = e && e.code;
+    if (e && e.text) { lastDraft = e.text; $("#dCopy").disabled = $("#dSave").disabled = false; }
+    $("#dStatus").textContent = code === "not_granted" ? "Drafting was not allowed. You can turn it on from the page's permissions menu."
+      : code === "rate_limited" ? "Too many requests. Wait a minute and try again." : (ctrl.signal.aborted ? "Stopped." : "The draft couldn't be written. Try again.");
+    if (!e?.text && !ctrl.signal.aborted) $("#dOut").textContent = "Your draft will appear here.";
+  } finally { $("#dGo").disabled = false; $("#dStop").hidden = true; }
+});
+$("#dStop").addEventListener("click", () => ctrl && ctrl.abort());
+$("#dCopy").addEventListener("click", e => copyText(lastDraft, e.target));
+$("#dSave").addEventListener("click", () => {
+  const s = all().find(x => x.id === $("#dScholarship").value) || {};
+  state.drafts = [...state.drafts, { id: "d" + Date.now().toString(36), scholarshipId: s.id, scholarshipName: s.name, prompt: $("#dPrompt").value.trim(), text: lastDraft, at: new Date().toISOString() }].slice(-40);
+  save("drafts", state.drafts); renderDrafts(); $("#dSave").disabled = true; $("#dStatus").textContent = "Draft saved.";
+});
+
+fillProfile();
+loadAll();
+</script>
