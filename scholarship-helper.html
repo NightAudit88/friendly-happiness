@@ -119,6 +119,7 @@ details summary { cursor: pointer; font-weight: 600 }
     <button role="tab" id="tab-find" aria-selected="true" data-view="find">Scholarships</button>
     <button role="tab" id="tab-profile" aria-selected="false" data-view="profile">My profile</button>
     <button role="tab" id="tab-drafts" aria-selected="false" data-view="drafts">Essay drafts</button>
+    <button role="tab" id="tab-pay" aria-selected="false" data-view="pay">Ways to pay</button>
     <button role="tab" id="tab-more" aria-selected="false" data-view="more">Find more</button>
   </nav>
 
@@ -130,6 +131,7 @@ details summary { cursor: pointer; font-weight: 600 }
       <button class="chip-btn" data-filter="asu" aria-pressed="false">ASU</button>
       <button class="chip-btn" data-filter="field" aria-pressed="false">Pharm/Tox</button>
       <button class="chip-btn" data-filter="research" aria-pressed="false">Research</button>
+      <button class="chip-btn" data-filter="az" aria-pressed="false">Arizona &amp; other</button>
       <button class="chip-btn" data-filter="mine" aria-pressed="false">My tracked</button>
     </div>
     <div class="list" id="list"></div>
@@ -202,6 +204,15 @@ details summary { cursor: pointer; font-weight: 600 }
     <div class="list" id="draftList"></div>
   </section>
 
+  <!-- WAYS TO PAY -->
+  <section id="view-pay" hidden>
+    <div style="margin-bottom:14px">
+      <h2>Ways to pay besides scholarships</h2>
+      <p class="note" style="margin-top:6px">Grants, jobs, tax credits and payment options that lower what you owe. Tick each one off once you've done it or ruled it out.</p>
+    </div>
+    <div class="list" id="payList"></div>
+  </section>
+
   <!-- MORE -->
   <section id="view-more" hidden>
     <div class="panel">
@@ -214,6 +225,9 @@ details summary { cursor: pointer; font-weight: 600 }
         <a href="https://www.toxicology.org/groups/ug/programs-for-students.asp" target="_blank" rel="noopener"><b>Society of Toxicology: student programs</b><span>Undergraduate awards, travel grants and the diversity program.</span></a>
         <a href="https://www.aspet.org/awards/SURF/individual/" target="_blank" rel="noopener"><b>ASPET awards</b><span>Pharmacology research fellowships and student awards.</span></a>
         <a href="https://studentaid.gov" target="_blank" rel="noopener"><b>FAFSA (studentaid.gov)</b><span>Needed for Pell Grants and many need-based scholarships.</span></a>
+        <a href="https://www.training.nih.gov/programs/ugsp" target="_blank" rel="noopener"><b>NIH Undergraduate Scholarship</b><span>Up to $20,000 a year for future biomedical researchers with financial need.</span></a>
+        <a href="https://etap.nsf.gov" target="_blank" rel="noopener"><b>NSF ETAP (summer REUs)</b><span>Search and apply to paid summer research programs.</span></a>
+        <a href="https://www.azfoundation.org" target="_blank" rel="noopener"><b>Arizona Community Foundation</b><span>One application for many Arizona donor scholarships.</span></a>
         <a href="https://www.fastweb.com" target="_blank" rel="noopener"><b>Fastweb</b><span>Large national scholarship search.</span></a>
         <a href="https://bold.org" target="_blank" rel="noopener"><b>Bold.org</b><span>National scholarships, many with short essays.</span></a>
       </div>
@@ -284,6 +298,64 @@ const CATALOG = [
     date: "", conf: "estimate", tags: ["field", "research"], url: "https://www.afpe.org",
     blurb: "A research-focused award for pharmacy and pharmaceutical-science undergraduates. Check the eligibility list carefully: some cycles require enrollment in a pharmacy program.",
     dateNote: "Dates not confirmed. Check AFPE's site" },
+  // ---- Added Nov 17 2026 ----
+  { id: "ncuire", name: "NCUIRE research assistant award", sponsor: "New College (NCUIRE)", amount: "Semester stipend (last listed $625) or 2 credits",
+    date: "2027-02-26", conf: "estimate", tags: ["asu", "research"], url: "https://newcollege.asu.edu/ncuire",
+    blurb: "Paid, faculty-mentored research for New College majors. Find a New College professor whose work interests you first: the professor submits the research-assistant application for you. A small stipend, but it builds the research record that Goldwater, NIH and SURF reviewers look for.",
+    dateNote: "Last request for applications closed Feb 26, 2025. Email NCUIRE@asu.edu for the current round",
+    reqs: "A faculty mentor in New College, about 5 hours a week, and a presentation at the New College Undergraduate Research Symposium." },
+  { id: "hsf", name: "Hispanic Scholarship Fund (HSF) Scholar Program", sponsor: "Hispanic Scholarship Fund", amount: "$500 – $5,000, based on need",
+    date: "2027-02-15", conf: "estimate", tags: ["az"], url: "https://www.hsf.net",
+    blurb: "For students of Hispanic heritage. One application, judged mostly on need and grades. Skip it if it doesn't apply to you.",
+    dateNote: "Opens early January, closes Feb 15 most years. Confirm on hsf.net",
+    reqs: "A completed FAFSA, since HSF uses it to judge need." },
+  { id: "nsf-reu", name: "NSF summer research programs (REU)", sponsor: "National Science Foundation host universities", amount: "About $6,000–$7,000 + housing and travel",
+    date: "2027-02-15", conf: "estimate", tags: ["research", "field"], url: "https://etap.nsf.gov",
+    blurb: "Paid 10-week summer research at universities across the country. Search the NSF REU directory for biology, biochemistry, chemistry and pharmacology sites. Apply to several, since each takes only a few students.",
+    dateNote: "Each site sets its own deadline, mostly Feb 1 – Mar 1. Many open in November",
+    reqs: "Usually a personal statement, transcript and one or two recommendation letters, submitted through NSF's ETAP portal.",
+    prompts: [
+      { q: "Personal statement: describe your research interests, any research experience, and how this summer program fits your academic and career goals.", words: 500 },
+    ] },
+  { id: "az-foundation", name: "Arizona Community Foundation scholarships", sponsor: "Arizona Community Foundation", amount: "Varies (many funds, one application)",
+    date: "2027-03-01", conf: "estimate", tags: ["az"], url: "https://www.azfoundation.org",
+    blurb: "One application matches Arizona students to dozens of donor scholarships, including some for current college students and STEM majors. Some funds are only for high-school seniors or certain counties, so read each fund's rules.",
+    dateNote: "Cycle usually opens in fall or winter. Deadline estimated from past years" },
+  { id: "udall", name: "Udall Undergraduate Scholarship", sponsor: "Udall Foundation", amount: "About $7,500",
+    date: "2027-03-03", conf: "estimate", tags: ["field", "research"], url: "https://www.udall.gov",
+    blurb: "For sophomores and juniors heading for careers in the environment, or in Native American health care or tribal policy. Environmental toxicology and public-health exposure work can fit if your essay ties them together. ASU must nominate you.",
+    dateNote: "National deadline about Mar 3–4, 2027. ASU's campus deadline is earlier: ask the national scholarships office",
+    reqs: "ASU nomination, U.S. citizenship or permanent residency, three recommendation letters and an essay about a speech, legislative act or public policy statement by Morris or Stewart Udall." },
+  { id: "nih-ugsp", name: "NIH Undergraduate Scholarship Program (UGSP)", sponsor: "National Institutes of Health", amount: "Up to $20,000/yr + paid NIH summer research",
+    date: "2027-03-26", conf: "estimate", tags: ["field", "research"], url: "https://www.training.nih.gov/programs/ugsp",
+    blurb: "One of the largest awards open to you, for students from disadvantaged financial backgrounds who plan biomedical research careers. Winners do paid summer research at NIH and later work there for a year for each year of support.",
+    dateNote: "Last cycle closed Mar 31, 2026 at noon ET. Expect late March 2027",
+    reqs: "U.S. citizen or permanent resident, full-time with at least a year left, 3.3 GPA or top 5% of class, an exceptional-financial-need form signed by ASU Financial Aid, and recommendation letters." },
+];
+
+// ---- Ways to pay besides scholarships ----
+const WAYS = [
+  { id: "fafsa-renew", title: "Renew your FAFSA early every year", kind: "Free money",
+    body: "Your Pell Grant, the Obama Scholars Program, the College Attainment Grant and Arizona Promise all renew only if the FAFSA is on file. ASU lists Jan 15 for Obama Scholars renewal and recommends an error-free FAFSA by Mar 1.",
+    link: "https://studentaid.gov", linkText: "studentaid.gov" },
+  { id: "state-grants", title: "Ask about Arizona Promise and AzLEAP state grants", kind: "Free money",
+    body: "Arizona Promise fills remaining tuition for Pell-eligible residents, and AzLEAP is a need-based state grant. Rules for continuing students vary, so ask ASU Financial Aid whether you qualify. The Board of Regents lists (855) 278-5080 for current ASU students.",
+    link: "https://tuition.asu.edu/special-financial-assistance-programs-arizona-residents", linkText: "ASU state aid programs" },
+  { id: "appeal", title: "Ask for an aid review if money changed", kind: "Free money",
+    body: "If your family's income dropped, someone lost a job, or there were big medical bills, ASU Financial Aid can review your aid with a special-circumstances request. It can raise your grant eligibility.",
+    link: "https://tuition.asu.edu", linkText: "ASU Financial Aid" },
+  { id: "work-study", title: "Get a Federal Work-Study or campus job", kind: "Earn",
+    body: "Check My ASU for a Work-Study award. If it's missing, send ASU the Federal Work-Study Adjustment Form. On the Student Employment job board, filter by \"Student Hire Work-Study\". Lab assistant jobs pay and build research experience.",
+    link: "https://studentemployment.asu.edu/students/preparing-student-employment/federal-work-study", linkText: "ASU Student Employment" },
+  { id: "paid-research", title: "Get paid to do research", kind: "Earn",
+    body: "NCUIRE pays New College students to work with faculty during the year. Summer programs like NSF REUs and ASPET SURF pay about $6,000–$7,000 plus housing. All three are in your scholarship list.",
+    link: "https://newcollege.asu.edu/ncuire", linkText: "NCUIRE" },
+  { id: "tax-credit", title: "Claim the American Opportunity Tax Credit", kind: "Get money back",
+    body: "Up to $2,500 a year for your first four years of college, and up to $1,000 of it comes back even if no tax is owed. It's claimed on Form 8863 by whoever claims you as a dependent, or by you if no one does. Keep your 1098-T from My ASU.",
+    link: "https://www.irs.gov/aotc", linkText: "IRS: AOTC" },
+  { id: "pay-plan", title: "Spread the bill with ASU's payment plan", kind: "Lower the strain",
+    body: "Splits the semester's balance into three payments (fall: Aug 25, Sep 25, Oct 25) instead of one, which helps you avoid late fees. It costs $100 to enroll for Arizona residents, so use it only if you need the time.",
+    link: "https://tuition.asu.edu/billing-finances/payment-plan", linkText: "ASU payment plan" },
 ];
 
 const STATUSES = ["Not started", "Interested", "Gathering materials", "Writing", "Submitted", "Awarded", "Not awarded", "Skipping"];
@@ -339,7 +411,27 @@ function fallBack() { useLocal = true; db = null; showBanner("Saving in this bro
 function showBanner(t) { const b = $("#storeBanner"); b.textContent = t; b.hidden = false; }
 
 // ---------- render ----------
-function render() { renderList(); renderSummary(); renderDraftSelect(); renderDrafts(); }
+function render() { renderList(); renderSummary(); renderDraftSelect(); renderDrafts(); renderPay(); }
+
+function renderPay() {
+  $("#payList").innerHTML = WAYS.map(w => {
+    const done = !!state.tracker["pay-" + w.id]?.done;
+    return `<article class="card">
+      <div style="display:grid;gap:8px">
+        <div class="meta"><span class="pill p-tag">${esc(w.kind)}</span></div>
+        <h3>${esc(w.title)}</h3>
+        <p>${esc(w.body)}</p>
+        <div class="actions"><a class="btn ghost small" href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.linkText)}</a></div>
+      </div>
+      <div class="side"><label style="display:flex;gap:6px;align-items:center;font-weight:500"><input type="checkbox" data-pay="${esc(w.id)}" style="width:auto"${done ? " checked" : ""}> Done</label></div>
+    </article>`;
+  }).join("");
+}
+$("#payList").addEventListener("change", e => {
+  const id = e.target.dataset.pay; if (!id) return;
+  state.tracker = { ...state.tracker, ["pay-" + id]: { done: e.target.checked, updated: new Date().toISOString() } };
+  save("tracker", state.tracker);
+});
 
 function renderSummary() {
   const items = all();
@@ -368,7 +460,7 @@ function renderList() {
     const pill = !s.date ? `<span class="pill p-estimate">Check date</span>`
       : soon ? `<span class="pill p-soon">${d} days left</span>`
       : `<span class="pill ${s.conf === "confirmed" ? "p-confirmed" : "p-estimate"}">${s.conf === "confirmed" ? "Confirmed" : "Estimated"}</span>`;
-    const tags = (s.tags || []).filter(t => t !== "mine-added").map(t => `<span class="pill p-tag">${{ asu: "ASU", field: "Pharm/Tox", research: "Research" }[t]}</span>`).join(" ");
+    const tags = (s.tags || []).filter(t => t !== "mine-added").map(t => `<span class="pill p-tag">${{ asu: "ASU", field: "Pharm/Tox", research: "Research", az: "Arizona & other" }[t]}</span>`).join(" ");
     return `<article class="card">
       <div style="display:grid;gap:8px">
         <h3>${esc(s.name)}</h3>
@@ -419,7 +511,7 @@ $("#addBtn").addEventListener("click", () => {
 // ---------- tabs ----------
 function showView(v) {
   document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
-  ["find", "profile", "drafts", "more"].forEach(x => $("#view-" + x).hidden = x !== v);
+  ["find", "profile", "drafts", "pay", "more"].forEach(x => $("#view-" + x).hidden = x !== v);
 }
 document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => showView(b.dataset.view)));
 
